@@ -30,8 +30,9 @@ class MainPresenter : Controller() {
         inputPictureSizeProperty.value = newInputPicture.getSize().toString()
         inputImageProperty.value = newInputPicture
 
-        outputPictureSizeProperty.value = newInputPicture.getSize().toString()
-        outputImageProperty.value = EvolutionaryPicture(newInputPicture.getSize())
+        outputPicture = null
+        outputPictureSizeProperty.set(null)
+        outputImageProperty.set(null)
     }
 
     private fun setOutputPictureBinding() {
@@ -51,7 +52,7 @@ class MainPresenter : Controller() {
         val newPixelSize = intDialog("New output pixel size", "New Size:", outputPicturePixelSize)
 
         if (inputPicture.getIntWidth() % newPixelSize != 0 || inputPicture.getIntHeight() % newPixelSize != 0)
-            alert(Alert.AlertType.WARNING, "Input picture size is not dividable by $newPixelSize!")
+            alert(Alert.AlertType.WARNING, "Input picture size is not dividable by $newPixelSize!").also { return }
 
         outputPicturePixelSize = newPixelSize
 

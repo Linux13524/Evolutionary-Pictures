@@ -3,18 +3,19 @@ package de.linus_kloeckner.evolutionary_pictures.ui.main
 import de.linus_kloeckner.evolutionary_pictures.ui.AbstractView
 import de.linus_kloeckner.evolutionary_pictures.ui.ImageViewPane.imageviewpane
 import de.linus_kloeckner.evolutionary_pictures.ui.Styles.Companion.container
+import de.linus_kloeckner.evolutionary_pictures.utils.notNull
 import javafx.beans.property.SimpleBooleanProperty
 import tornadofx.*
 
 class MainView : AbstractView<MainPresenter>() {
 
+    override val presenter: MainPresenter by inject()
+
+    private val showInputProperty = SimpleBooleanProperty(false)
+
     init {
         primaryStage.isMaximized = true
     }
-
-    override val presenter: MainPresenter by inject()
-
-    private val showInputProperty = SimpleBooleanProperty(true)
 
     override val root = borderpane {
 
@@ -22,12 +23,14 @@ class MainView : AbstractView<MainPresenter>() {
             addClass(container)
 
             button("Open Picture") {
+                enableWhen(presenter.stopLoopProperty)
                 action {
                     presenter.openPicture()
                 }
             }
 
             button("Set output pixel size") {
+                enableWhen(presenter.stopLoopProperty and presenter.inputImageProperty.notNull() )
                 action {
                     presenter.setNewOutputPicture()
                 }
