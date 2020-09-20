@@ -12,7 +12,7 @@ open class Picture : WritableImage {
         override fun toString(): String = "$width x $height"
     }
 
-    constructor(picture : Picture): super(picture.pixelReader, picture.getIntWidth(), picture.getIntHeight())
+    constructor(picture: Picture) : super(picture.pixelReader, picture.getIntWidth(), picture.getIntHeight())
 
     constructor(size: Size) : super(size.width, size.height)
     constructor(width: Int, height: Int) : super(width, height)
@@ -23,6 +23,12 @@ open class Picture : WritableImage {
         fun loadFromFilesystem(path: String): EvolutionaryPicture {
             val stream = File(path).inputStream()
             val image = Image(stream)
+            return EvolutionaryPicture(image.pixelReader, image.width.toInt(), image.height.toInt())
+        }
+
+        fun loadFromFilesystem(path: String, size: Size): EvolutionaryPicture {
+            val stream = File(path).inputStream()
+            val image = Image(stream, size.width.toDouble(), size.height.toDouble(), false, false)
             return EvolutionaryPicture(image.pixelReader, image.width.toInt(), image.height.toInt())
         }
     }
@@ -73,7 +79,7 @@ open class Picture : WritableImage {
         }
     }
 
-    fun resample(scaleFactor: Int): Picture {
+    fun upsample(scaleFactor: Int): Picture {
         val output = Picture(getIntWidth() * scaleFactor, getIntHeight() * scaleFactor)
 
         val reader = this.pixelReader

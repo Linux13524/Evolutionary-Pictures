@@ -32,9 +32,9 @@ class MainView : AbstractView<MainPresenter>() {
             }
 
             button("Set output pixel size") {
-                enableWhen(presenter.stopLoopProperty and presenter.inputImageProperty.notNull() )
+                enableWhen(presenter.stopLoopProperty and presenter.inputImageProperty.notNull())
                 action {
-                    presenter.setNewOutputPicture()
+                    presenter.setOutputPixelSize()
                 }
             }
 
@@ -86,6 +86,18 @@ class MainView : AbstractView<MainPresenter>() {
                         isSmooth = false
                     }
                 }
+            }
+        }
+
+        bottom = hbox(8) {
+            label("Match: ")
+            label {
+                bind(presenter.matchProperty)
+            }
+
+            label("Picture: ")
+            label {
+                bind(presenter.counterProperty)
             }
         }
 
