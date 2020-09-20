@@ -3,14 +3,19 @@ package de.linus_kloeckner.evolutionary_pictures.ui.main
 import de.linus_kloeckner.evolutionary_pictures.images.EvolutionaryPicture
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
 import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.intDialog
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Alert
 import javafx.scene.image.Image
 import javafx.stage.FileChooser
 import tornadofx.*
+import kotlin.concurrent.thread
 
 class MainPresenter : Controller() {
+
+    private val MUTATION_PROBABILITY = 0.010
+    private val MUTATION_VALUE = 0.10
 
     private var inputPicture: Picture? = null
     val inputPictureSizeProperty = SimpleStringProperty()
@@ -59,6 +64,22 @@ class MainPresenter : Controller() {
         val newPictureSize = Picture.Size(inputPicture.getIntWidth() / newPixelSize, inputPicture.getIntHeight() / newPixelSize)
         outputPicture = EvolutionaryPicture(newPictureSize).also { it.init() }
         setOutputPictureBinding()
+    }
+
+    var stopLoopProperty = SimpleBooleanProperty(true)
+    fun startMainLoop() {
+        thread {
+            stopLoopProperty.value = false
+            while (!stopLoopProperty.value) {
+                outputPicture?.mutate(MUTATION_PROBABILITY, MUTATION_VALUE)
+                setOutputPictureBinding()
+            }
+        }
+
+    }
+
+    fun stopMainLoop() {
+        stopLoopProperty.value = true
     }
 
 }

@@ -15,6 +15,8 @@ class MainView : AbstractView<MainPresenter>() {
 
     init {
         primaryStage.isMaximized = true
+
+        presenter.init()
     }
 
     override val root = borderpane {
@@ -33,6 +35,20 @@ class MainView : AbstractView<MainPresenter>() {
                 enableWhen(presenter.stopLoopProperty and presenter.inputImageProperty.notNull() )
                 action {
                     presenter.setNewOutputPicture()
+                }
+            }
+
+            button("Start Mutations") {
+                enableWhen(presenter.stopLoopProperty and presenter.outputImageProperty.notNull())
+                action {
+                    presenter.startMainLoop()
+                }
+            }
+
+            button("Stop Mutations") {
+                enableWhen(!presenter.stopLoopProperty)
+                action {
+                    presenter.stopMainLoop()
                 }
             }
         }
