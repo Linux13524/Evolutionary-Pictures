@@ -12,6 +12,8 @@ open class Picture : WritableImage {
         override fun toString(): String = "$width x $height"
     }
 
+    constructor(picture : Picture): super(picture.pixelReader, picture.getIntWidth(), picture.getIntHeight())
+
     constructor(size: Size) : super(size.width, size.height)
     constructor(width: Int, height: Int) : super(width, height)
 
