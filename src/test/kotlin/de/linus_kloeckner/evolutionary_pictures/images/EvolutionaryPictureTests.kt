@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EvolutionaryPictureTests {
@@ -30,6 +32,26 @@ class EvolutionaryPictureTests {
             assertNotEquals(picture2, picture1.crossover(picture2).first)
             assertNotEquals(picture1, picture1.crossover(picture2).second)
             assertNotEquals(picture2, picture1.crossover(picture2).second)
+        }
+
+        @ParameterizedTest
+        @CsvSource(
+                "1.0, 1.0, true",
+                "1.0, 0.5, true",
+                "1.0, 0.0, false",
+                "0.0, 0.0, false",
+                "0.0, 1.0, false"
+        )
+        fun `check mutation changes picture`(mutationProbability: Double, mutationValue: Double, shouldChange: Boolean) {
+            val picture1 = EvolutionaryPicture(100, 100).apply { fill(Color.RED) }
+            val picture2 = Picture(picture1)
+
+            picture1.mutate(mutationProbability, mutationValue)
+
+            if (shouldChange)
+                assertNotEquals(picture1, picture2)
+            else
+                assertEquals(picture1, picture2)
         }
 
     }

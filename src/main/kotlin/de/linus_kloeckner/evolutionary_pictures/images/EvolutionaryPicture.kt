@@ -33,4 +33,13 @@ class EvolutionaryPicture : Picture {
         return Pair(childPicture1, childPicture2)
     }
 
+    fun mutate(mutationProbability: Double, mutationValue: Double) {
+        fullIteration { x, y ->
+            if(Random.nextDouble() < mutationProbability) {
+                val newPixel = this.getPixel(x, y).mutate(mutationValue)
+                this.setPixel(newPixel)
+            }
+        }
+    }
+
 }

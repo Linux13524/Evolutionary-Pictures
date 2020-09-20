@@ -3,6 +3,7 @@ package de.linus_kloeckner.evolutionary_pictures.images
 import javafx.scene.paint.Color
 import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 class Pixel(val x: Int, val y: Int, val r: Double, val g: Double, val b: Double) {
 
@@ -51,6 +52,19 @@ class Pixel(val x: Int, val y: Int, val r: Double, val g: Double, val b: Double)
         else Pixel(this.x, this.y, other.r, other.g, this.b)
 
         return Pair(newPixel1, newPixel2)
+    }
+
+    fun mutate(mutationValue: Double): Pixel {
+        var randomMutation = (Random.nextDouble() * 2.0 - 1.0) * mutationValue
+        val newR = (this.r + randomMutation).coerceIn(0.0..1.0)
+
+        randomMutation = (Random.nextDouble() * 2.0 - 1.0) * mutationValue
+        val newG = (this.g + randomMutation).coerceIn(0.0..1.0)
+
+        randomMutation = (Random.nextDouble() * 2.0 - 1.0) * mutationValue
+        val newB = (this.b + randomMutation).coerceIn(0.0..1.0)
+
+        return Pixel(this.x, this.y, newR, newG, newB)
     }
 
 
