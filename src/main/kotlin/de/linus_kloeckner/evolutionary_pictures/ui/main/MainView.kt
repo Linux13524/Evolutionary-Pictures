@@ -15,8 +15,6 @@ class MainView : AbstractView<MainPresenter>() {
 
     init {
         primaryStage.isMaximized = true
-
-        presenter.init()
     }
 
     override val root = borderpane {
@@ -39,7 +37,7 @@ class MainView : AbstractView<MainPresenter>() {
             }
 
             button("Start Mutations") {
-                enableWhen(presenter.stopLoopProperty and presenter.outputImageProperty.notNull())
+                enableWhen(presenter.stopLoopProperty and presenter.outputPictureSizeProperty.notNull())
                 action {
                     presenter.startMainLoop()
                 }
@@ -58,7 +56,7 @@ class MainView : AbstractView<MainPresenter>() {
 
             button("Show Evolutionary Picture") {
                 action {
-                    showInputProperty.set(!showInputProperty.value)
+                    showInputProperty.value = !showInputProperty.value
                     text = if (showInputProperty.value) "Show Evolutionary Picture" else "Show Input Picture"
                 }
             }
