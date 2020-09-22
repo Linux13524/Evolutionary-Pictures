@@ -1,22 +1,23 @@
 package de.linus_kloeckner.evolutionary_pictures.images
 
 import javafx.scene.image.PixelReader
+import javafx.scene.paint.Color
 import kotlin.random.Random
 
 class EvolutionaryPicture : Picture {
+
+    var colorPalette: List<Color>? = null
 
     constructor(size: Size) : super(size)
     constructor(width: Int, height: Int) : super(width, height)
     constructor(pixelReader: PixelReader, width: Int, height: Int) : super(pixelReader, width, height)
 
-    override fun copy() = EvolutionaryPicture(pixelReader, getIntWidth(), getIntHeight())
+    override fun copy() = EvolutionaryPicture(pixelReader, getIntWidth(), getIntHeight()).also { it.colorPalette = colorPalette }
 
     fun init() {
         fullIteration { x, y ->
-            val r = Random.nextDouble()
-            val g = Random.nextDouble()
-            val b = Random.nextDouble()
-            this.setPixel(Pixel(x, y, r, g, b))
+            val newPixel = colorPalette?.random()?.let { Pixel(x, y, it) } ?: Pixel.random(x, y)
+            this.setPixel(newPixel)
         }
     }
 
@@ -38,7 +39,8 @@ class EvolutionaryPicture : Picture {
     fun mutate(mutationRate: Double) {
         fullIteration { x, y ->
             if (Random.nextDouble() < mutationRate) {
-                this.setPixel(Pixel.random(x, y))
+                val newPixel = colorPalette?.random()?.let { Pixel(x, y, it) } ?: Pixel.random(x, y)
+                this.setPixel(newPixel)
             }
         }
     }

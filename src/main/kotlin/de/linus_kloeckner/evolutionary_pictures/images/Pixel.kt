@@ -1,8 +1,7 @@
 package de.linus_kloeckner.evolutionary_pictures.images
 
+import de.linus_kloeckner.evolutionary_pictures.utils.distance
 import javafx.scene.paint.Color
-import kotlin.math.pow
-import kotlin.math.sqrt
 import kotlin.random.Random
 
 class Pixel(val x: Int, val y: Int, val color: Color) {
@@ -27,14 +26,7 @@ class Pixel(val x: Int, val y: Int, val color: Color) {
     fun g() = color.green
     fun b() = color.blue
 
-    private val maxPossibleDistance = sqrt(3.0)
-    fun match(other: Pixel): Double {
-        val euclideanDistance = sqrt((this.r - other.r).pow(2.0) +
-                (this.g - other.g).pow(2.0) +
-                (this.b - other.b).pow(2.0))
-
-        return 1 - euclideanDistance / maxPossibleDistance
-    }
+    fun match(other: Pixel): Double = color.distance(other.color)
 
     fun crossover(other: Pixel, splice: Int): Pair<Pixel, Pixel> {
         require(splice in 1..2) { "Bad input value for splice" }

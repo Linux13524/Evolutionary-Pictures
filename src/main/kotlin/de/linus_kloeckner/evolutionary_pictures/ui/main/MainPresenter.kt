@@ -1,12 +1,13 @@
 package de.linus_kloeckner.evolutionary_pictures.ui.main
 
+import de.linus_kloeckner.evolutionary_pictures.algorithm.ColorPicker
 import de.linus_kloeckner.evolutionary_pictures.algorithm.EvolutionaryAlgorithm
-import de.linus_kloeckner.evolutionary_pictures.images.EvolutionaryPicture
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
 import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.intDialog
 import javafx.beans.property.*
 import javafx.scene.control.Alert
 import javafx.scene.image.Image
+import javafx.scene.paint.Color
 import javafx.stage.FileChooser
 import tornadofx.Controller
 import tornadofx.alert
@@ -20,6 +21,7 @@ class MainPresenter : Controller() {
 
     private var picturePixelSize = 1
     private var pictureSize: Picture.Size? = null
+    private var pictureColorPalette: List<Color>? = null
 
     val inputPictureSizeProperty = SimpleStringProperty()
     val outputPictureSizeProperty = SimpleStringProperty()
@@ -28,9 +30,10 @@ class MainPresenter : Controller() {
         val files = chooseFile("Open Picture", arrayOf(FileChooser.ExtensionFilter("Picture", "*.jpg", "*.png")))
         inputPicturePath = files.firstOrNull()?.absolutePath
 
-        val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it) }
+        val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it) } ?: return
         inputImageProperty.value = inputPicture
-        inputPictureSizeProperty.value = inputPicture?.getSize().toString()
+        inputPictureSizeProperty.value = inputPicture.getSize().toString()
+        pictureColorPalette = ColorPicker.pick(128, inputPicture)
 
         outputPictureSizeProperty.value = null
         outputImageProperty.value = null
@@ -70,7 +73,7 @@ class MainPresenter : Controller() {
         val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it, pictureSize) } ?: return
 
         val properties = EvolutionaryAlgorithm.Properties(matchProperty, counterProperty, stopLoopProperty, outputImageProperty)
-        val settings = EvolutionaryAlgorithm.Settings(100, pictureSize, picturePixelSize, inputPicture)
+        val settings = EvolutionaryAlgorithm.Settings(pictureSize, picturePixelSize, inputPicture, pictureColorPalette)
         instance = EvolutionaryAlgorithm(properties, settings)
     }
 

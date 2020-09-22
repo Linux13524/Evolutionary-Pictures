@@ -8,16 +8,26 @@ import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
+import javafx.scene.paint.Color
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import tornadofx.*
 
 private val MUTATION_RATE = 0.1.percentage()
+private val POPULATION_SIZE = 160
+private val SUB_POPULATION_SIZE = 20
+private val THREADS = 8
 
 class EvolutionaryAlgorithm(private val properties: Properties, private val settings: Settings) {
 
-    data class Settings(val populationSize: Int,
-                        val pictureSize: Picture.Size,
+    private val scope = CoroutineScope(Dispatchers.Default)
+
+    data class Settings(val pictureSize: Picture.Size,
                         val picturePixelSize: Int,
-                        val targetPicture: Picture)
+                        val targetPicture: Picture,
+                        val colorPalette: List<Color>? = null)
 
     data class Properties(val bestMatchProperty: SimpleDoubleProperty,
                           val currentGenerationProperty: SimpleIntegerProperty,
@@ -25,12 +35,21 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                           val outputImageProperty: SimpleObjectProperty<Image>)
 
     class Individual(private val settings: Settings, copyPicture: EvolutionaryPicture? = null) {
-        val picture: EvolutionaryPicture = copyPicture?.copy()
-                ?: EvolutionaryPicture(settings.pictureSize).apply { init() }
+        val picture: EvolutionaryPicture
         var match = 0.0
             private set
 
         init {
+            picture = if (copyPicture != null) {
+                copyPicture.copy()
+            } else {
+                val newPicture = EvolutionaryPicture(settings.pictureSize)
+                newPicture.colorPalette = settings.colorPalette
+                newPicture.init()
+                newPicture
+            }
+
+
             match = picture.match(settings.targetPicture)
         }
 
@@ -46,33 +65,42 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
 
     private var currentGeneration = 0
 
-    private var population: List<Individual> = List(settings.populationSize) { Individual(settings) }
+    private var population: List<Individual> = List(POPULATION_SIZE) { Individual(settings) }
 
-    fun startEvolution() {
-        runAsync {
-            properties.stopLoopProperty.value = false
-            while (!properties.stopLoopProperty.value) {
+    fun startEvolution() = scope.launch {
+        assert(POPULATION_SIZE / THREADS == SUB_POPULATION_SIZE)
 
-                population = population.map { individual ->
-                    val newIndividual = individual.copy().also { it.mutate() }
+        properties.stopLoopProperty.value = false
+        while (!properties.stopLoopProperty.value) {
 
-                    if (newIndividual.match > individual.match)
-                        newIndividual
-                    else
-                        individual
-                }
-
-                val currentBestPicture = population.maxBy { it.match }!!
-
-
-                if (currentGeneration % 10 == 0)
-                    runLater {
-                        properties.bestMatchProperty.value = currentBestPicture.match
-                        properties.currentGenerationProperty.value = currentGeneration
-                        properties.outputImageProperty.value = currentBestPicture.picture.upsample(settings.picturePixelSize)
-                    }
-                currentGeneration++
+            val results = (0 until THREADS).map {
+                val subPopulation = population.subList(it * SUB_POPULATION_SIZE, (it + 1) * SUB_POPULATION_SIZE)
+                runEvolutionAsync(subPopulation)
             }
+
+            population = results.flatMap { it.await() }
+
+            val currentBestPicture = population.maxBy { it.match }!!
+
+
+            if (currentGeneration % 10 == 0)
+                runLater {
+                    properties.bestMatchProperty.value = currentBestPicture.match
+                    properties.currentGenerationProperty.value = currentGeneration
+                    properties.outputImageProperty.value = currentBestPicture.picture.upsample(settings.picturePixelSize)
+                }
+            currentGeneration++
+        }
+    }
+
+    fun runEvolutionAsync(subPopulation: List<Individual>) = scope.async {
+        return@async subPopulation.map { individual ->
+            val newIndividual = individual.copy().also { it.mutate() }
+
+            if (newIndividual.match > individual.match)
+                newIndividual
+            else
+                individual
         }
     }
 
