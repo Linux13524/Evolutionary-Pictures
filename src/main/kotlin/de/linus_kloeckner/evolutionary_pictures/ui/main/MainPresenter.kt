@@ -3,6 +3,7 @@ package de.linus_kloeckner.evolutionary_pictures.ui.main
 import de.linus_kloeckner.evolutionary_pictures.images.EvolutionaryPicture
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
 import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.intDialog
+import de.linus_kloeckner.evolutionary_pictures.utils.percentage
 import javafx.beans.property.*
 import javafx.scene.control.Alert
 import javafx.scene.image.Image
@@ -11,8 +12,7 @@ import tornadofx.*
 
 class MainPresenter : Controller() {
 
-    private val MUTATION_PROBABILITY = 0.010
-    private val MUTATION_VALUE = 0.10
+    private val MUTATION_RATE = 0.1.percentage()
 
     private var inputPicturePath: String? = null
     private var inputPicture: Picture? = null
@@ -82,7 +82,7 @@ class MainPresenter : Controller() {
             while (!stopLoopProperty.value) {
                 val newPicture = EvolutionaryPicture(outputPicture!!)
 
-                newPicture.mutate(MUTATION_PROBABILITY, MUTATION_VALUE)
+                newPicture.mutate(MUTATION_RATE)
                 val newMatch = newPicture.match(inputPicture!!)
                 if (newMatch > matchProperty.get()) {
                     runLater { matchProperty.set(newMatch) }
