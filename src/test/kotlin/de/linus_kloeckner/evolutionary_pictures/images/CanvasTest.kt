@@ -32,7 +32,7 @@ class CanvasTest {
             Canvas.drawSquare(pic, 50, 50, 100, Color.BLACK)
 
             pic.fullIteration { x, y ->
-                assertEquals(Color.BLACK, pic.getPixel(x, y).getColor())
+                assertEquals(Color.BLACK, pic.getPixel(x, y).color)
             }
         }
 

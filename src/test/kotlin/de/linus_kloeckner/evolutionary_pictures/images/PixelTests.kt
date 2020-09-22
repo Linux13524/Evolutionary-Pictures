@@ -40,7 +40,7 @@ class PixelTests {
 
             Assertions.assertArrayEquals(
                     arrayOf(expectedR, expectedG, expectedB).toDoubleArray(),
-                    arrayOf(pixel.r, pixel.g, pixel.b).toDoubleArray(), 0.1 / 100)
+                    arrayOf(pixel.r(), pixel.g(), pixel.b()).toDoubleArray(), 0.1 / 100)
         }
 
     }

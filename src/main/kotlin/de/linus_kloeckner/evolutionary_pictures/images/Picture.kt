@@ -59,7 +59,7 @@ open class Picture : WritableImage {
             }
 
     fun getPixel(x: Int, y: Int) = Pixel(x, y, pixelReader.getColor(x, y))
-    fun setPixel(pixel: Pixel) = pixelWriter.setColor(pixel.x, pixel.y, pixel.getColor())
+    fun setPixel(pixel: Pixel) = pixelWriter.setColor(pixel.x, pixel.y, pixel.color)
 
     fun match(other: Picture): Double {
         check(getSize() == other.getSize()) { "Sizes of pictures do not match: ${getSize()} <> ${other.getSize()}" }
