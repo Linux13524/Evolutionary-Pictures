@@ -61,7 +61,7 @@ class PictureTests {
         fun `copied pictures do match`() {
             val picture1 = Picture(100, 100)
             picture1.fill(Color.RED)
-            val picture2 = Picture(picture1)
+            val picture2 = picture1.copy()
 
             assertEquals(100.0, picture1.match(picture2))
         }
@@ -69,7 +69,7 @@ class PictureTests {
         @Test
         fun `copied pictures do not match after one was changed`() {
             val picture1 = Picture(100, 100)
-            val picture2 = Picture(picture1)
+            val picture2 = picture1.copy()
             picture1.fill(Color.WHITE)
 
             assertEquals(0.0, picture1.match(picture2))

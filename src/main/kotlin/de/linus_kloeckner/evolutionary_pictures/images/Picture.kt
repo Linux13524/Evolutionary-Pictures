@@ -12,8 +12,6 @@ open class Picture : WritableImage {
         override fun toString(): String = "$width x $height"
     }
 
-    constructor(picture: Picture) : super(picture.pixelReader, picture.getIntWidth(), picture.getIntHeight())
-
     constructor(size: Size) : super(size.width, size.height)
     constructor(width: Int, height: Int) : super(width, height)
 
@@ -48,6 +46,8 @@ open class Picture : WritableImage {
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
+
+    open fun copy() = Picture(this.pixelReader, this.getIntWidth(), this.getIntHeight())
 
     fun getIntWidth(): Int = this.width.toInt()
     fun getIntHeight(): Int = this.height.toInt()

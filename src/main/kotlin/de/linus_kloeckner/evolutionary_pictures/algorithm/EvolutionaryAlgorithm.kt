@@ -25,9 +25,8 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                           val outputImageProperty: SimpleObjectProperty<Image>)
 
     class Individual(private val settings: Settings, copyPicture: EvolutionaryPicture? = null) {
-        val picture: EvolutionaryPicture =
-                if (copyPicture == null) EvolutionaryPicture(settings.pictureSize).apply { init() }
-                else EvolutionaryPicture(copyPicture)
+        val picture: EvolutionaryPicture = copyPicture?.copy()
+                ?: EvolutionaryPicture(settings.pictureSize).apply { init() }
         var match = 0.0
             private set
 

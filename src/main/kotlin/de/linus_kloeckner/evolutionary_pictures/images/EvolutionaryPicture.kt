@@ -5,10 +5,11 @@ import kotlin.random.Random
 
 class EvolutionaryPicture : Picture {
 
-    constructor(picture: Picture) : super(picture.pixelReader, picture.getIntWidth(), picture.getIntHeight())
     constructor(size: Size) : super(size)
     constructor(width: Int, height: Int) : super(width, height)
     constructor(pixelReader: PixelReader, width: Int, height: Int) : super(pixelReader, width, height)
+
+    override fun copy() = EvolutionaryPicture(pixelReader, getIntWidth(), getIntHeight())
 
     fun init() {
         fullIteration { x, y ->
