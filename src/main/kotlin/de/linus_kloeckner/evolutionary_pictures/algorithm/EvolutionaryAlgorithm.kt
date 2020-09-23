@@ -74,7 +74,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         while (!properties.stopLoopProperty.value) {
 
             val results = (0 until THREADS).map {
-                val subPopulation = population.subList(it * SUB_POPULATION_SIZE, (it + 1) * SUB_POPULATION_SIZE)
+                val subPopulation = population.shuffled().subList(it * SUB_POPULATION_SIZE, (it + 1) * SUB_POPULATION_SIZE)
                 runEvolutionAsync(subPopulation)
             }
 
@@ -93,7 +93,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         }
     }
 
-    fun runEvolutionAsync(subPopulation: List<Individual>) = scope.async {
+    private fun runEvolutionAsync(subPopulation: List<Individual>) = scope.async {
         return@async subPopulation.map { individual ->
             val newIndividual = individual.copy().also { it.mutate() }
 
