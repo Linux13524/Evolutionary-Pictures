@@ -22,6 +22,7 @@ private val MUTATION_RATE = 0.1.percentage()
 private val POPULATION_SIZE = 160
 private val SUB_POPULATION_SIZE = 20
 private val THREADS = 8
+private val TOURNAMENT_SIZE = 5
 
 class EvolutionaryAlgorithm(private val properties: Properties, private val settings: Settings) {
 
@@ -97,7 +98,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
 
             population = results.flatMap { it.await() }
 
-            population = selection(population)
+            population = tournamentBasedSelection(population)
 
             currentGeneration++
         }
@@ -136,6 +137,22 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
 
     private fun selection(population: List<Individual>): List<Individual> {
         return population.sortedByDescending { it.match }.subList(0, POPULATION_SIZE)
+    }
+
+    private fun tournamentBasedSelection(population: List<Individual>): List<Individual> {
+        val oldPopulation = population.toMutableList()
+        val newPopulation = mutableListOf<Individual>()
+
+        while (newPopulation.size < POPULATION_SIZE) {
+            val tournament = (1..TOURNAMENT_SIZE).map{
+                oldPopulation.random()
+            }.toMutableList()
+            val winner = tournament.maxBy { it.match }!!
+            oldPopulation.remove(winner)
+            newPopulation.add(winner)
+        }
+
+        return newPopulation
     }
 
     fun stopEvolution() {
