@@ -23,28 +23,28 @@ class MainView : AbstractView<MainPresenter>() {
             addClass(container)
 
             button("Open Picture") {
-                enableWhen(presenter.stopLoopProperty)
+                enableWhen(presenter.algorithmProperties.stopLoopProperty)
                 action {
                     presenter.openPicture()
                 }
             }
 
             button("Set output pixel size") {
-                enableWhen(presenter.stopLoopProperty and presenter.inputImageProperty.notNull())
+                enableWhen(presenter.algorithmProperties.stopLoopProperty and presenter.inputImageProperty.notNull())
                 action {
                     presenter.setOutputPixelSize()
                 }
             }
 
-            button("Start Mutations") {
-                enableWhen(presenter.stopLoopProperty and presenter.outputPictureSizeProperty.notNull())
+            button("Start algorithm") {
+                enableWhen(presenter.algorithmProperties.stopLoopProperty and presenter.outputPictureSizeProperty.notNull())
                 action {
                     presenter.startMainLoop()
                 }
             }
 
-            button("Stop Mutations") {
-                enableWhen(!presenter.stopLoopProperty)
+            button("Stop algorithm") {
+                enableWhen(!presenter.algorithmProperties.stopLoopProperty)
                 action {
                     presenter.stopMainLoop()
                 }
@@ -80,7 +80,7 @@ class MainView : AbstractView<MainPresenter>() {
                     label("Output Picture:")
 
                     imageviewpane {
-                        imageProperty().bind(presenter.outputImageProperty)
+                        imageProperty().bind(presenter.algorithmProperties.outputImageProperty)
                         isSmooth = false
                     }
                 }
@@ -88,14 +88,24 @@ class MainView : AbstractView<MainPresenter>() {
         }
 
         bottom = hbox(8) {
-            label("Match: ")
+            label("Best Match: ")
             label {
-                bind(presenter.matchProperty)
+                bind(presenter.algorithmProperties.bestMatchProperty)
+            }
+
+            label("Avg Match: ")
+            label {
+                bind(presenter.algorithmProperties.avgMatchProperty)
+            }
+
+            label("Worst Match: ")
+            label {
+                bind(presenter.algorithmProperties.worstMatchProperty)
             }
 
             label("Picture: ")
             label {
-                bind(presenter.counterProperty)
+                bind(presenter.algorithmProperties.currentGenerationProperty)
             }
         }
 

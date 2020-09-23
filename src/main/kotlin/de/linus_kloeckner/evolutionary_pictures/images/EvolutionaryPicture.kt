@@ -6,15 +6,13 @@ import kotlin.random.Random
 
 class EvolutionaryPicture : Picture {
 
-    var colorPalette: List<Color>? = null
-
     constructor(size: Size) : super(size)
     constructor(width: Int, height: Int) : super(width, height)
     constructor(pixelReader: PixelReader, width: Int, height: Int) : super(pixelReader, width, height)
 
-    override fun copy() = EvolutionaryPicture(pixelReader, getIntWidth(), getIntHeight()).also { it.colorPalette = colorPalette }
+    override fun copy() = EvolutionaryPicture(pixelReader, getIntWidth(), getIntHeight())
 
-    fun init() {
+    fun init(colorPalette: List<Color>? = null) {
         fullIteration { x, y ->
             val newPixel = colorPalette?.random()?.let { Pixel(x, y, it) } ?: Pixel.random(x, y)
             this.setPixel(newPixel)
@@ -36,7 +34,24 @@ class EvolutionaryPicture : Picture {
         return Pair(childPicture1, childPicture2)
     }
 
-    fun mutate(mutationRate: Double) {
+    fun fullPixelCrossover(other: EvolutionaryPicture): Pair<EvolutionaryPicture, EvolutionaryPicture> {
+        val childPicture1 = EvolutionaryPicture(getSize())
+        val childPicture2 = EvolutionaryPicture(getSize())
+
+        fullIteration { x, y ->
+            if (Random.nextDouble() > 0.5) {
+                childPicture1.setPixel(this.getPixel(x, y))
+                childPicture2.setPixel(other.getPixel(x, y))
+            } else {
+                childPicture1.setPixel(other.getPixel(x, y))
+                childPicture2.setPixel(this.getPixel(x, y))
+            }
+        }
+
+        return Pair(childPicture1, childPicture2)
+    }
+
+    fun mutate(mutationRate: Double, colorPalette: List<Color>? = null) {
         fullIteration { x, y ->
             if (Random.nextDouble() < mutationRate) {
                 val newPixel = colorPalette?.random()?.let { Pixel(x, y, it) } ?: Pixel.random(x, y)

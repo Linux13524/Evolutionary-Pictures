@@ -4,7 +4,8 @@ import de.linus_kloeckner.evolutionary_pictures.algorithm.ColorPicker
 import de.linus_kloeckner.evolutionary_pictures.algorithm.EvolutionaryAlgorithm
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
 import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.intDialog
-import javafx.beans.property.*
+import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Alert
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
@@ -36,7 +37,7 @@ class MainPresenter : Controller() {
         pictureColorPalette = ColorPicker.pick(128, inputPicture)
 
         outputPictureSizeProperty.value = null
-        outputImageProperty.value = null
+        algorithmProperties.outputImageProperty.value = null
     }
 
     fun setOutputPixelSize() {
@@ -62,27 +63,23 @@ class MainPresenter : Controller() {
         initEvolutionaryAlgorithm()
     }
 
-    val matchProperty = SimpleDoubleProperty()
-    val counterProperty = SimpleIntegerProperty(0)
-    var stopLoopProperty = SimpleBooleanProperty(true)
-    val outputImageProperty = SimpleObjectProperty<Image>()
+    val algorithmProperties = EvolutionaryAlgorithm.Properties()
 
-    private var instance: EvolutionaryAlgorithm? = null
+    private var algorithmInstance: EvolutionaryAlgorithm? = null
     private fun initEvolutionaryAlgorithm() {
         val pictureSize = pictureSize ?: return
         val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it, pictureSize) } ?: return
 
-        val properties = EvolutionaryAlgorithm.Properties(matchProperty, counterProperty, stopLoopProperty, outputImageProperty)
         val settings = EvolutionaryAlgorithm.Settings(pictureSize, picturePixelSize, inputPicture, pictureColorPalette)
-        instance = EvolutionaryAlgorithm(properties, settings)
+        algorithmInstance = EvolutionaryAlgorithm(algorithmProperties, settings)
     }
 
     fun startMainLoop() {
-        instance?.startEvolution()
+        algorithmInstance?.startEvolution()
     }
 
     fun stopMainLoop() {
-        instance?.stopEvolution()
+        algorithmInstance?.stopEvolution()
     }
 
 }

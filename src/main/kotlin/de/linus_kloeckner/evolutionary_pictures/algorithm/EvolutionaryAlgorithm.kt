@@ -2,6 +2,7 @@ package de.linus_kloeckner.evolutionary_pictures.algorithm
 
 import de.linus_kloeckner.evolutionary_pictures.images.EvolutionaryPicture
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
+import de.linus_kloeckner.evolutionary_pictures.utils.map
 import de.linus_kloeckner.evolutionary_pictures.utils.percentage
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
@@ -14,6 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tornadofx.*
+import java.util.*
+import kotlin.concurrent.schedule
 
 private val MUTATION_RATE = 0.1.percentage()
 private val POPULATION_SIZE = 160
@@ -29,10 +32,12 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                         val targetPicture: Picture,
                         val colorPalette: List<Color>? = null)
 
-    data class Properties(val bestMatchProperty: SimpleDoubleProperty,
-                          val currentGenerationProperty: SimpleIntegerProperty,
-                          val stopLoopProperty: SimpleBooleanProperty,
-                          val outputImageProperty: SimpleObjectProperty<Image>)
+    data class Properties(val bestMatchProperty: SimpleDoubleProperty = SimpleDoubleProperty(),
+                          val avgMatchProperty: SimpleDoubleProperty = SimpleDoubleProperty(),
+                          val worstMatchProperty: SimpleDoubleProperty = SimpleDoubleProperty(),
+                          val currentGenerationProperty: SimpleIntegerProperty = SimpleIntegerProperty(0),
+                          val stopLoopProperty: SimpleBooleanProperty = SimpleBooleanProperty(true),
+                          val outputImageProperty: SimpleObjectProperty<Image> = SimpleObjectProperty<Image>())
 
     class Individual(private val settings: Settings, copyPicture: EvolutionaryPicture? = null) {
         val picture: EvolutionaryPicture
@@ -44,8 +49,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                 copyPicture.copy()
             } else {
                 val newPicture = EvolutionaryPicture(settings.pictureSize)
-                newPicture.colorPalette = settings.colorPalette
-                newPicture.init()
+                newPicture.init(settings.colorPalette)
                 newPicture
             }
 
@@ -58,7 +62,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         }
 
         fun mutate() {
-            picture.mutate(MUTATION_RATE)
+            picture.mutate(MUTATION_RATE, settings.colorPalette)
             match = picture.match(settings.targetPicture)
         }
     }
@@ -70,6 +74,19 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
     fun startEvolution() = scope.launch {
         assert(POPULATION_SIZE / THREADS == SUB_POPULATION_SIZE)
 
+        val timer = Timer().schedule(0, 500L) {
+            runLater {
+                val currentBestPicture = population.maxBy { it.match }!!
+                val currentAvgMatch = population.map { it.match }.average()
+                val currentWorstPicture = population.minBy { it.match }!!
+                properties.bestMatchProperty.value = currentBestPicture.match
+                properties.avgMatchProperty.value = currentAvgMatch
+                properties.worstMatchProperty.value = currentWorstPicture.match
+                properties.currentGenerationProperty.value = currentGeneration
+                properties.outputImageProperty.value = currentBestPicture.picture.upsample(settings.picturePixelSize)
+            }
+        }
+
         properties.stopLoopProperty.value = false
         while (!properties.stopLoopProperty.value) {
 
@@ -80,28 +97,45 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
 
             population = results.flatMap { it.await() }
 
-            val currentBestPicture = population.maxBy { it.match }!!
+            population = selection(population)
 
-
-            if (currentGeneration % 10 == 0)
-                runLater {
-                    properties.bestMatchProperty.value = currentBestPicture.match
-                    properties.currentGenerationProperty.value = currentGeneration
-                    properties.outputImageProperty.value = currentBestPicture.picture.upsample(settings.picturePixelSize)
-                }
             currentGeneration++
         }
+        timer.cancel()
     }
 
     private fun runEvolutionAsync(subPopulation: List<Individual>) = scope.async {
-        return@async subPopulation.map { individual ->
-            val newIndividual = individual.copy().also { it.mutate() }
 
-            if (newIndividual.match > individual.match)
-                newIndividual
-            else
-                individual
+        val newSubPopulation = mutableListOf<Individual>()
+        newSubPopulation.addAll(subPopulation)
+
+        forParents(subPopulation) { parents ->
+            val children = crossover(parents).map { mutate(it) }
+            newSubPopulation.addAll(children.toList())
         }
+
+        return@async newSubPopulation
+    }
+
+    private fun forParents(subPopulation: List<Individual>, apply: (Pair<Individual, Individual>) -> Unit) {
+        (0 until (subPopulation.size / 2)).map { subPopulation[it * 2] to subPopulation[it * 2 + 1] }.forEach {
+            apply(it)
+        }
+    }
+
+    private fun crossover(parents: Pair<Individual, Individual>): Pair<Individual, Individual> {
+        return parents.first.picture.fullPixelCrossover(parents.second.picture).map { Individual(settings, it) }
+    }
+
+    private fun mutate(individual: Individual): Individual {
+        val newIndividual = individual.copy().also { it.mutate() }
+
+        return if (newIndividual.match > individual.match) newIndividual
+        else individual
+    }
+
+    private fun selection(population: List<Individual>): List<Individual> {
+        return population.sortedByDescending { it.match }.subList(0, POPULATION_SIZE)
     }
 
     fun stopEvolution() {
