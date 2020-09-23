@@ -6,7 +6,7 @@ import javafx.scene.layout.HBox
 import tornadofx.*
 import java.util.function.UnaryOperator
 
-fun intDialog(title: String, labelText: String, oldInt: Int): Int {
+fun intDialog(title: String, labelText: String, defaultInt: Int): Int {
 
     val dialog = object : Dialog<ButtonType>() {}
     dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
@@ -16,7 +16,7 @@ fun intDialog(title: String, labelText: String, oldInt: Int): Int {
     hbox.alignment = Pos.CENTER
     hbox.spacing = 8.0
     val label = Label(labelText)
-    val intField = TextField(oldInt.toString())
+    val intField = TextField(defaultInt.toString())
     intField.maxWidth = 50.0
     val filter = UnaryOperator<TextFormatter.Change> {
         return@UnaryOperator if (it.text.matches(Regex("[0-9]*"))) it else null
@@ -32,6 +32,6 @@ fun intDialog(title: String, labelText: String, oldInt: Int): Int {
         return intField.text.toInt()
     }
 
-    return oldInt
+    return defaultInt
 }
 

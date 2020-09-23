@@ -7,7 +7,7 @@ import kotlin.math.sqrt
 fun Double.percentage() = this / 100.0
 
 private val MAX_POSSIBLE_DISTANCE = sqrt(3.0)
-fun Color.distance(other : Color) : Double{
+fun Color.distance(other: Color): Double {
     val euclideanDistance = sqrt((this.red - other.red).pow(2.0) +
             (this.green - other.green).pow(2.0) +
             (this.blue - other.blue).pow(2.0))

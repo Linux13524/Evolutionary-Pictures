@@ -109,7 +109,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         val newSubPopulation = mutableListOf<Individual>()
         newSubPopulation.addAll(subPopulation)
 
-        forParents(subPopulation) { parents ->
+        selectParents(subPopulation) { parents ->
             val children = crossover(parents).map { mutate(it) }
             newSubPopulation.addAll(children.toList())
         }
@@ -117,7 +117,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         return@async newSubPopulation
     }
 
-    private fun forParents(subPopulation: List<Individual>, apply: (Pair<Individual, Individual>) -> Unit) {
+    private fun selectParents(subPopulation: List<Individual>, apply: (Pair<Individual, Individual>) -> Unit) {
         (0 until (subPopulation.size / 2)).map { subPopulation[it * 2] to subPopulation[it * 2 + 1] }.forEach {
             apply(it)
         }
