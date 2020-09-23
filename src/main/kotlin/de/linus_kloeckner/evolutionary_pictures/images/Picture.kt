@@ -70,7 +70,7 @@ open class Picture : WritableImage {
             matchAcc += match
         }
 
-        return matchAcc / getIntHeight() * getIntWidth() / 100
+        return matchAcc / (getIntHeight() * getIntWidth()) * 100
     }
 
     fun fill(color: Color) {
