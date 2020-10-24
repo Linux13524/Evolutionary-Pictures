@@ -94,8 +94,9 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
         properties.stopLoopProperty.value = false
         while (!properties.stopLoopProperty.value) {
 
+            val shuffledPopulation = population.shuffled()
             val results = (0 until THREADS).map {
-                val subPopulation = population.shuffled().subList(it * SUB_POPULATION_SIZE, (it + 1) * SUB_POPULATION_SIZE)
+                val subPopulation = shuffledPopulation.subList(it * SUB_POPULATION_SIZE, (it + 1) * SUB_POPULATION_SIZE)
                 runEvolutionAsync(subPopulation)
             }
 
@@ -132,10 +133,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
     }
 
     private fun mutate(individual: Individual): Individual {
-        val newIndividual = individual.copy().also { it.mutate() }
-
-        return if (newIndividual.match > individual.match) newIndividual
-        else individual
+        return individual.copy().also { it.mutate() }
     }
 
     private fun selection(population: List<Individual>): List<Individual> {
