@@ -37,6 +37,7 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                           val avgMatchProperty: SimpleDoubleProperty = SimpleDoubleProperty(),
                           val worstMatchProperty: SimpleDoubleProperty = SimpleDoubleProperty(),
                           val currentGenerationProperty: SimpleIntegerProperty = SimpleIntegerProperty(0),
+                          val duplicatePicturesProperty: SimpleIntegerProperty = SimpleIntegerProperty(0),
                           val stopLoopProperty: SimpleBooleanProperty = SimpleBooleanProperty(true),
                           val outputImageProperty: SimpleObjectProperty<Image> = SimpleObjectProperty<Image>())
 
@@ -80,10 +81,12 @@ class EvolutionaryAlgorithm(private val properties: Properties, private val sett
                 val currentBestPicture = population.maxBy { it.match }!!
                 val currentAvgMatch = population.map { it.match }.average()
                 val currentWorstPicture = population.minBy { it.match }!!
+                val duplicatePictures = POPULATION_SIZE - population.distinct().count()
                 properties.bestMatchProperty.value = currentBestPicture.match
                 properties.avgMatchProperty.value = currentAvgMatch
                 properties.worstMatchProperty.value = currentWorstPicture.match
                 properties.currentGenerationProperty.value = currentGeneration
+                properties.duplicatePicturesProperty.value = duplicatePictures
                 properties.outputImageProperty.value = currentBestPicture.picture.upsample(settings.picturePixelSize)
             }
         }

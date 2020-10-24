@@ -134,9 +134,14 @@ class MainView : AbstractView<MainPresenter>() {
                 bind(presenter.algorithmProperties.worstMatchProperty)
             }
 
-            label("Picture: ")
+            label("Generation: ")
             label {
                 bind(presenter.algorithmProperties.currentGenerationProperty)
+            }
+
+            label("Duplicates: ")
+            label {
+                bind(presenter.algorithmProperties.duplicatePicturesProperty)
             }
         }
 
