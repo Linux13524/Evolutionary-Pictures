@@ -10,7 +10,7 @@ import javafx.scene.paint.Color
 import tornadofx.*
 import java.util.function.UnaryOperator
 
-fun colorPickerDialog(picture: Picture, defaultColorNumber: Int = 128, defaultColorTolerance: Int = 5): List<Color>? {
+fun colorPickerDialog(picture: Picture, oldColorPalette: List<Color>?): List<Color>? {
 
     val dialog = object : Dialog<ButtonType>() {}
     dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
@@ -21,7 +21,7 @@ fun colorPickerDialog(picture: Picture, defaultColorNumber: Int = 128, defaultCo
     }
 
     val label1 = Label("Number of Colors")
-    val colorNumberField = TextField(defaultColorNumber.toString())
+    val colorNumberField = TextField("128")
     colorNumberField.maxWidth = 50.0
 
     val formatter1 = TextFormatter<String>(intFilter)
@@ -68,7 +68,7 @@ fun colorPickerDialog(picture: Picture, defaultColorNumber: Int = 128, defaultCo
         val size = ColorPicker.calculateColors(picture, colorToleranceField.text.toInt()).size
         label3.text = "Total color count: $size"
     }
-    colorToleranceField.text = defaultColorTolerance.toString()
+    colorToleranceField.text = "5"
 
     val buttonClicked = dialog.showAndWait()
 
@@ -79,6 +79,6 @@ fun colorPickerDialog(picture: Picture, defaultColorNumber: Int = 128, defaultCo
         return ColorPicker.pick(picture, number, colorTolerance)
     }
 
-    return null
+    return oldColorPalette
 }
 

@@ -92,6 +92,6 @@ class MainPresenter : Controller() {
 
     fun pickColor() {
         val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it) } ?: return
-        pictureColorPalette = colorPickerDialog(inputPicture)
+        pictureColorPalette = colorPickerDialog(inputPicture, pictureColorPalette)
     }
 }
