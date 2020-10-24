@@ -1,6 +1,6 @@
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
     `kotlin-dsl`
     id("org.openjfx.javafxplugin") version "0.0.8"
 }
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0-M1")
     implementation("no.tornado:tornadofx:1.7.20")
 
     // Test dependencies:
