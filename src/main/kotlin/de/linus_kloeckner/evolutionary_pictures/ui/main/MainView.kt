@@ -35,6 +35,13 @@ class MainView : AbstractView<MainPresenter>() {
                 }
             }
 
+            button("Color Picker") {
+                enableWhen(!algorithmStarted and !algorithmRunning and inputSet)
+                action {
+                    presenter.pickColor()
+                }
+            }
+
             button("Set output pixel size") {
                 enableWhen(!algorithmStarted and !algorithmRunning and inputSet)
                 action {

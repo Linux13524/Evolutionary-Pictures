@@ -1,8 +1,8 @@
 package de.linus_kloeckner.evolutionary_pictures.ui.main
 
-import de.linus_kloeckner.evolutionary_pictures.algorithm.ColorPicker
 import de.linus_kloeckner.evolutionary_pictures.algorithm.EvolutionaryAlgorithm
 import de.linus_kloeckner.evolutionary_pictures.images.Picture
+import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.colorPickerDialog
 import de.linus_kloeckner.evolutionary_pictures.ui.dialogs.intDialog
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -34,7 +34,6 @@ class MainPresenter : Controller() {
         val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it) } ?: return
         inputImageProperty.value = inputPicture
         inputPictureSizeProperty.value = inputPicture.getSize().toString()
-        pictureColorPalette = ColorPicker.pick(128, inputPicture)
 
         outputPictureSizeProperty.value = null
         algorithmProperties.outputImageProperty.value = null
@@ -91,4 +90,8 @@ class MainPresenter : Controller() {
         algorithmInstance?.stopEvolution()
     }
 
+    fun pickColor() {
+        val inputPicture = inputPicturePath?.let { Picture.loadFromFilesystem(it) } ?: return
+        pictureColorPalette = colorPickerDialog(inputPicture)
+    }
 }

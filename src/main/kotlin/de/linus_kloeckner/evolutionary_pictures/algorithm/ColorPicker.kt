@@ -5,10 +5,9 @@ import de.linus_kloeckner.evolutionary_pictures.images.Pixel
 import de.linus_kloeckner.evolutionary_pictures.utils.distance
 import javafx.scene.paint.Color
 
-private val COLOR_DISTANCE = 0.99
-
 object ColorPicker {
-    fun pick(number: Int, picture: Picture): List<Color> {
+    fun calculateColors(picture: Picture, colorTolerance: Int = 5): List<Color> {
+        val colorDistance = (100 - colorTolerance) / 100.0
         val pixels = mutableListOf<Pixel>()
         picture.fullIteration { x, y ->
             pixels.add(picture.getPixel(x, y))
@@ -20,12 +19,18 @@ object ColorPicker {
             val curColor = grouped.keys.toList()[i]
             grouped = grouped.filter {
                 val dist = curColor.distance(it.key)
-                dist < COLOR_DISTANCE || dist == 1.0
+                dist < colorDistance || dist == 1.0
             }
             i++
         }
 
-        return if (grouped.size <= number) grouped.keys.toList()
-        else grouped.keys.toList().subList(0, number)
+        return grouped.keys.toList()
+    }
+
+    fun pick(picture: Picture, number: Int, colorTolerance: Int = 5): List<Color> {
+        val colors = calculateColors(picture, colorTolerance)
+
+        return if (colors.size <= number) colors
+        else colors.subList(0, number)
     }
 }
