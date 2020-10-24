@@ -59,8 +59,6 @@ class MainPresenter : Controller() {
                 inputPicture.getIntHeight() / picturePixelSize)
 
         outputPictureSizeProperty.value = pictureSize?.toString()
-
-        initEvolutionaryAlgorithm()
     }
 
     val algorithmProperties = EvolutionaryAlgorithm.Properties()
@@ -72,6 +70,17 @@ class MainPresenter : Controller() {
 
         val settings = EvolutionaryAlgorithm.Settings(pictureSize, picturePixelSize, inputPicture, pictureColorPalette)
         algorithmInstance = EvolutionaryAlgorithm(algorithmProperties, settings)
+    }
+
+    fun startAlgorithm() {
+        initEvolutionaryAlgorithm()
+
+        startMainLoop()
+    }
+
+    fun stopAlgorithm() {
+        algorithmProperties.currentGenerationProperty.value = 0
+        algorithmInstance = null
     }
 
     fun startMainLoop() {

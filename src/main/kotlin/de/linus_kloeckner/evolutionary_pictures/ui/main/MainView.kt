@@ -17,34 +17,58 @@ class MainView : AbstractView<MainPresenter>() {
         primaryStage.isMaximized = true
     }
 
+    // Bindings
+    private val algorithmStarted = !presenter.algorithmProperties.currentGenerationProperty.isEqualTo(0)
+    private val algorithmRunning = !presenter.algorithmProperties.stopLoopProperty
+    private val inputSet = presenter.inputImageProperty.notNull()
+    private val outputSet = presenter.outputPictureSizeProperty.isNotEmpty
+
     override val root = borderpane {
 
         left = vbox(8) {
             addClass(container)
 
             button("Open Picture") {
-                enableWhen(presenter.algorithmProperties.stopLoopProperty)
+                enableWhen(!algorithmStarted and !algorithmRunning)
                 action {
                     presenter.openPicture()
                 }
             }
 
             button("Set output pixel size") {
-                enableWhen(presenter.algorithmProperties.stopLoopProperty and presenter.inputImageProperty.notNull())
+                enableWhen(!algorithmStarted and !algorithmRunning and inputSet)
                 action {
                     presenter.setOutputPixelSize()
                 }
             }
 
             button("Start algorithm") {
-                enableWhen(presenter.algorithmProperties.stopLoopProperty and presenter.outputPictureSizeProperty.notNull())
+                enableWhen(!algorithmStarted and !algorithmRunning and outputSet)
+                action {
+                    presenter.startAlgorithm()
+                }
+            }
+
+            button("Stop algorithm") {
+                enableWhen(algorithmStarted and !algorithmRunning and outputSet)
+                action {
+                    presenter.stopAlgorithm()
+                }
+            }
+
+            button("Resume algorithm") {
+                val enabled = algorithmStarted and !algorithmRunning
+                visibleWhen(enabled)
+                enableWhen(enabled)
                 action {
                     presenter.startMainLoop()
                 }
             }
 
-            button("Stop algorithm") {
-                enableWhen(!presenter.algorithmProperties.stopLoopProperty)
+            button("Pause algorithm") {
+                val enabled = algorithmStarted and algorithmRunning
+                visibleWhen(enabled)
+                enableWhen(enabled)
                 action {
                     presenter.stopMainLoop()
                 }
