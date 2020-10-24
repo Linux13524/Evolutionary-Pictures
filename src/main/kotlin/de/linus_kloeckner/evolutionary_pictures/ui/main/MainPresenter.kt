@@ -47,7 +47,7 @@ class MainPresenter : Controller() {
             return
         }
 
-        picturePixelSize = intDialog("New output pixel size", "New Size:", 1)
+        picturePixelSize = intDialog("New output pixel size", "New Size:", picturePixelSize)
 
         if (inputPicture.getIntWidth() % picturePixelSize != 0 || inputPicture.getIntHeight() % picturePixelSize != 0)
             alert(Alert.AlertType.WARNING, "Input picture size is not dividable by $picturePixelSize!").also { return }
